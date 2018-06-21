@@ -25,7 +25,7 @@ class BaseData {
     if (!validation.isFormValid) {
       return Promise.reject(validation);
     }
-    this.findByKey('email', payload.email)
+    return this.findByKey('email', payload.email)
       .then((isUsed) => {
         if (isUsed.length > 0) {
           return Promise.reject('This email is already used');
