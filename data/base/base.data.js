@@ -20,20 +20,6 @@ class BaseData {
     return this.collection.insert(payload);
   }
 
-  register(payload) {
-    let validation = this.validator.isValid(payload);
-    if (!validation.isFormValid) {
-      return Promise.reject(validation);
-    }
-    return this.findByKey('email', payload.email)
-      .then((isUsed) => {
-        if (isUsed.length > 0) {
-          return Promise.reject('This email is already used');
-        }
-          return this.collection.insert(payload);
-      });
-  }
-
   findByKey(key, data) {
     return this.collection.find({
       [key]: data,

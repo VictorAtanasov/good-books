@@ -1,3 +1,5 @@
+const auth = require('../../authentication/auth');
+
 const attachTo = (app, data) => {
   app.get('/books', (req, res) => {
     return data.books.getAll()
@@ -7,13 +9,13 @@ const attachTo = (app, data) => {
             books: books,
           });
         }
-        res.status(200).json({
+        res.status(401).json({
           error: 'No books',
         });
       });
   });
 
-  app.post('/books', (req, res) => {
+  app.post('/books', auth, (req, res) => {
     const book = req.body;
     return data.books.create(book)
       .then((dbItem) => {
@@ -22,7 +24,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(400).json(err);
+        res.status(401).json(err);
       });
   });
 };
