@@ -15,6 +15,22 @@ const attachTo = (app, data) => {
       });
   });
 
+  app.get('/books/:key', (req, res) => {
+    const id = req.params.key;
+    return data.books.findById(id)
+      .then((dbItem) => {
+        if (dbItem.length === 0) {
+          res.status(401).json({
+            error: 'Nothing is found',
+          });
+        }
+        res.status(200).json(dbItem);
+      })
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+  });
+
   app.post('/books', auth, (req, res) => {
     const book = req.body;
     return data.books.create(book)

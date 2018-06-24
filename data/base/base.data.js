@@ -1,3 +1,5 @@
+const {ObjectId} = require('mongodb');
+
 class BaseData {
   constructor(db, ModelClass, validator) {
     this.db = db.db();
@@ -25,6 +27,21 @@ class BaseData {
       [key]: data,
     })
     .toArray();
+  }
+
+  findById(id) {
+    if (id.length !== 24) {
+      return Promise.reject('Please provide a valid id');
+    }
+    return this.collection.find(ObjectId(id))
+      .toArray();
+  }
+
+  updateByKey(key, data, keyForUpdate, newData) {
+    return this.collection.updateOne(
+      {key: data},
+      {$set: {keyForUpdate: newData}}
+    );
   }
 
   getCollectionName() {

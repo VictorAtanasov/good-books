@@ -3,7 +3,8 @@ const config = require('../config');
 
 module.exports = (req, res, next) => {
   try {
-    const decoded = jwt.verify(req.headers.token, config.jwtKey);
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, config.jwtKey);
     req.userData = decoded;
     next();
   } catch (err) {
