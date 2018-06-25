@@ -37,10 +37,10 @@ class BaseData {
       .toArray();
   }
 
-  updateByKey(key, data, keyForUpdate, newData) {
+  updateItem(id, newData) {
     return this.collection.updateOne(
-      {key: data},
-      {$set: {keyForUpdate: newData}}
+      {'_id': ObjectId(id)},
+      {$set: newData}
     );
   }
 
