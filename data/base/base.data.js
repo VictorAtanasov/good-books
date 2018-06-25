@@ -22,9 +22,9 @@ class BaseData {
     return this.collection.insert(payload);
   }
 
-  findByKey(key, data) {
+  findByKey(key, payload) {
     return this.collection.find({
-      [key]: data,
+      [key]: payload,
     })
     .toArray();
   }
@@ -37,10 +37,25 @@ class BaseData {
       .toArray();
   }
 
-  updateItem(id, newData) {
+  updateItem(id, payload) {
+    if (id.length !== 24) {
+      return Promise.reject('Please provide a valid id');
+    }
     return this.collection.updateOne(
       {'_id': ObjectId(id)},
-      {$set: newData}
+      {$set: payload}
+    );
+  }
+
+  pushItem(id, payload) {
+    if (id.length !== 24) {
+      return Promise.reject('Please provide a valid id');
+    } // !!!!! method for id validation !!!!!
+    return this.collection.update(
+      {'_id': ObjectId(id)},
+      {$push: {
+        'comments': payload,
+      }}
     );
   }
 

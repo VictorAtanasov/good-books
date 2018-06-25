@@ -15,6 +15,7 @@ class BooksData extends BaseData {
     payload.totalRating = 0;
     payload.ratingsCount = 0;
     payload.reviewsCount = 0;
+    payload.comments = [];
     return this.collection.insert(payload);
   }
 
@@ -41,11 +42,22 @@ class BooksData extends BaseData {
           totalRating: +dbData.totalRating + newRating,
           ratingsCount: +dbData.ratingsCount + 1,
         };
-        // console.log(typeof newData.rating);
         return this.updateItem(id, newData);
       })
       .catch((err) => {
         return Promise.reject('Please provide valid id');
+      });
+  }
+
+  addComment(id, payload) {
+    // add validation!!!
+    return this.pushItem(id, payload)
+      .then((dbData) => {
+        if (dbData.result.nModified === 1) {
+          return this.findById(id);
+        } else {
+          return Promise.reject('Please provide a valid book id');
+        }
       });
   }
 }

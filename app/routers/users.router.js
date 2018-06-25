@@ -4,12 +4,16 @@ const attachTo = (app, data) => {
     return data.users.login(user)
       .then((dbItem) => {
         res.status(201).json({
+          success: true,
           message: 'Successful login',
-          dbItem,
+          payload: dbItem,
         });
       })
       .catch((err) => {
-        res.status(401).json(err);
+        res.status(401).json({
+          success: false,
+          message: err,
+        });
       });
   });
 
@@ -18,11 +22,15 @@ const attachTo = (app, data) => {
     return data.users.register(user)
       .then((dbItem) => {
         res.status(201).json({
+          success: true,
           message: 'Successful Registration',
         });
       })
       .catch((err) => {
-        res.status(401).json(err);
+        res.status(401).json({
+          success: false,
+          message: err,
+        });
       });
   });
 };

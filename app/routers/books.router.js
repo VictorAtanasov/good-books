@@ -7,11 +7,39 @@ const attachTo = (app, data) => {
       .then((books) => {
         if (books.length > 0) {
           return res.status(200).json({
-            books: books,
+            success: true,
+            payload: books,
           });
         }
         res.status(401).json({
-          error: 'No books',
+          success: false,
+          message: 'No books',
+        });
+      });
+  });
+
+  app.post('/books', fileUpload.upload.single('image'), auth, (req, res) => {
+    const book = req.body;
+    if (req.file) {
+      book.image = req.file.filename;
+    } else {
+      book.image = 'default.jpg';
+    }
+    return data.books.createBook(book)
+      .then((dbItem) => {
+        console.log(dbItem);
+        res.status(201).json({
+          success: true,
+          message: 'The book is successfuly added!',
+          payload: {
+            insertedId: dbItem.insertedIds[0],
+          },
+        });
+      })
+      .catch((err) => {
+        res.status(401).json({
+          success: false,
+          message: err,
         });
       });
   });
@@ -22,14 +50,21 @@ const attachTo = (app, data) => {
       .then((dbItem) => {
         if (dbItem.length === 0) {
           res.status(401).json({
-            error: 'Nothing is found',
+            success: false,
+            message: 'Nothing is found',
           });
         } else {
-          res.status(200).json(dbItem);
+          res.status(200).json({
+            success: true,
+            payload: dbItem,
+          });
         }
       })
       .catch((err) => {
-        res.status(500).json(err);
+        res.status(500).json({
+          success: false,
+          message: err,
+        });
       });
   });
 
@@ -43,16 +78,21 @@ const attachTo = (app, data) => {
       .then((dbResp) => {
         if (dbResp.result.nModified > 0) {
           res.status(201).json({
+            success: true,
             message: 'The book is successfully updated!',
           });
         } else {
           res.status(401).json({
+            success: false,
             message: 'There was nothing to update',
           });
         }
       })
       .catch((err) => {
-        res.status(500).json(err);
+        res.status(500).json({
+          success: false,
+          message: err,
+        });
       });
   });
 
@@ -61,31 +101,34 @@ const attachTo = (app, data) => {
     const rating = req.body;
     return data.books.addRating(id, rating)
       .then((dbData) => {
-        // console.log(dbData);
         res.status(201).json({
+          success: true,
           message: 'The rating is successfully added',
         });
       })
       .catch((err) => {
-        res.status(401).json(err);
+        res.status(401).json({
+          success: false,
+          message: err,
+        });
       });
   });
 
-  app.post('/books', fileUpload.upload.single('image'), auth, (req, res) => {
-    const book = req.body;
-    if (req.file) {
-      book.image = req.file.filename;
-    } else {
-      book.image = '488052281.jpg';
-    }
-    return data.books.createBook(book)
-      .then((dbItem) => {
+  app.post('/books/:id/comments', auth, (req, res) => {
+    const id = req.params.id;
+    const comment = req.body;
+    return data.books.addComment(id, comment)
+      .then((dbData) => {
         res.status(201).json({
-          message: 'The book is successfuly added!',
+          success: true,
+          payload: dbData,
         });
       })
       .catch((err) => {
-        res.status(401).json(err);
+        res.status(401).json({
+          success: false,
+          message: err,
+        });
       });
   });
 };
