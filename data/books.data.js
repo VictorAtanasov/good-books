@@ -11,12 +11,22 @@ class BooksData extends BaseData {
     if (!validation.isFormValid) {
       return Promise.reject(validation);
     }
-    payload.rating = 0;
-    payload.totalRating = 0;
-    payload.ratingsCount = 0;
-    payload.reviewsCount = 0;
-    payload.comments = [];
-    return this.collection.insert(payload);
+    return this.validateUserId(payload.userId)
+      .then((res) => {
+        if (res) {
+          payload.rating = 0;
+          payload.totalRating = 0;
+          payload.ratingsCount = 0;
+          payload.reviewsCount = 0;
+          payload.comments = [];
+          return this.collection.insert(payload);
+        } else {
+          return Promise.reject('Please provide a valid user id');
+        }
+      })
+      .catch((err) => {
+        return Promise.reject('Please provide a valid user id');
+      });
   }
 
   updateBook(id, payload) {
@@ -50,8 +60,11 @@ class BooksData extends BaseData {
   }
 
   addComment(id, payload) {
-    // add validation!!!
-    return this.pushItem(id, payload)
+    let validation = this.validator.isValidComment(payload);
+    if (!validation.isFormValid) {
+      return Promise.reject(validation);
+    }
+    return this.pushComment(id, payload)
       .then((dbData) => {
         if (dbData.result.nModified === 1) {
           return this.findById(id);

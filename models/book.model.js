@@ -81,6 +81,41 @@ class Book {
         message,
     };
   }
+
+  static isValidComment(payload) {
+    const errors = {};
+    let isFormValid = true;
+    let message = '';
+    if (!payload || Object.keys(payload).length < 1) {
+      isFormValid = false;
+      errors.message = 'Please provide at least one book field for update';
+    }
+
+    if (typeof payload.author !== 'string' || payload.author.length < 3) {
+      isFormValid = false;
+      errors.author = 'Author must be more than 2 symbols';
+    }
+
+    if (payload.title.length < 1) {
+      isFormValid = false;
+      errors.title = 'Title must be more than 1 symbols';
+    }
+
+    if (typeof payload.body !== 'string' || payload.body.length < 5) {
+      isFormValid = false;
+      errors.body = 'The comment must be at least 5 symbols';
+    }
+
+    if (!isFormValid) {
+      message = 'Check the form for errors!';
+    }
+
+    return {
+        errors,
+        isFormValid,
+        message,
+    };
+  }
 };
 
 module.exports = Book;

@@ -27,7 +27,6 @@ const attachTo = (app, data) => {
     }
     return data.books.createBook(book)
       .then((dbItem) => {
-        console.log(dbItem);
         res.status(201).json({
           success: true,
           message: 'The book is successfuly added!',

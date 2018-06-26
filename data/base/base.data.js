@@ -30,15 +30,36 @@ class BaseData {
   }
 
   findById(id) {
-    if (id.length !== 24) {
+    let idValidation = this.idValidator(id);
+    if (!idValidation) {
       return Promise.reject('Please provide a valid id');
     }
     return this.collection.find(ObjectId(id))
       .toArray();
   }
 
+  validateUserId(id) {
+    let idValidation = this.idValidator(id);
+    if (!idValidation) {
+      return Promise.reject('Please provide a valid id');
+    }
+    return this.db.collection('users').find(ObjectId(id))
+      .toArray()
+      .then((dbItem) => {
+        if (dbItem.length > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .catch((err) => {
+        return Promise.reject('Error');
+      });
+  }
+
   updateItem(id, payload) {
-    if (id.length !== 24) {
+    let idValidation = this.idValidator(id);
+    if (!idValidation) {
       return Promise.reject('Please provide a valid id');
     }
     return this.collection.updateOne(
@@ -47,10 +68,20 @@ class BaseData {
     );
   }
 
-  pushItem(id, payload) {
-    if (id.length !== 24) {
+  pushItem(id, payload, key) {
+    return this.collection.update(
+      {'_id': ObjectId(id)},
+      {$push: {
+        [key]: payload,
+      }}
+    );
+  }
+
+  pushComment(id, payload) {
+    let idValidation = this.idValidator(id);
+    if (!idValidation) {
       return Promise.reject('Please provide a valid id');
-    } // !!!!! method for id validation !!!!!
+    }
     return this.collection.update(
       {'_id': ObjectId(id)},
       {$push: {
@@ -61,6 +92,14 @@ class BaseData {
 
   getCollectionName() {
     return this.ModelClass.name.toLowerCase() + 's';
+  }
+
+  idValidator(id) {
+    if (id.length !== 24) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }
 
