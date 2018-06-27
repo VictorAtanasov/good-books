@@ -104,7 +104,9 @@ const attachTo = (app, data) => {
 
   app.get('/user/:id/books/owned', auth, (req, res) => {
     const id = req.params.id;
-    return data.books.findByKey('bookOwners.bookOwner', id)
+    const page = req.query.page;
+    const limit = req.query.limit;
+    return data.books.findByKeyPaginated('bookOwners.bookOwner', id, page, limit)
       .then((dbData) => {
         res.status(200).json({
           success: true,

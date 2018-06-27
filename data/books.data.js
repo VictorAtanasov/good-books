@@ -64,7 +64,7 @@ class BooksData extends BaseData {
     if (!validation.isFormValid) {
       return Promise.reject(validation);
     }
-    return this.pushComment(id, payload)
+    return this.pushItem(id, payload, 'comments')
       .then((dbData) => {
         if (dbData.result.nModified === 1) {
           return this.findById(id);

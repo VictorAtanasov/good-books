@@ -42,6 +42,22 @@ class BaseData {
     .toArray();
   }
 
+  findByKeyPaginated(key, payload, page, limit) {
+    if (limit === undefined) {
+      limit = 5;
+    }
+    if (page === undefined || page < 1) {
+      page = 1;
+    }
+    const skip = (page - 1) * limit;
+    return this.collection.find({
+      [key]: payload,
+    })
+    .skip(+skip)
+    .limit(+limit)
+    .toArray();
+  }
+
   findById(id) {
     if (!this.idValidator(id)) {
       return Promise.reject('Please provide a valid id');
@@ -79,22 +95,13 @@ class BaseData {
   }
 
   pushItem(id, payload, key) {
-    return this.collection.update(
-      {'_id': ObjectId(id)},
-      {$push: {
-        [key]: payload,
-      }}
-    );
-  }
-
-  pushComment(id, payload) {
     if (!this.idValidator(id)) {
       return Promise.reject('Please provide a valid id');
     }
     return this.collection.update(
       {'_id': ObjectId(id)},
       {$push: {
-        'comments': payload,
+        [key]: payload,
       }}
     );
   }

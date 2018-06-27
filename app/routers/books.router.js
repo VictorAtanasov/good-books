@@ -136,6 +136,32 @@ const attachTo = (app, data) => {
         });
       });
   });
+
+  app.get('/books/search/:key/:payload', (req, res) => {
+    const key = req.params.key;
+    const payload = req.params.payload;
+    const page = req.query.page;
+    const limit = req.query.limit;
+    return data.books.findByKeyPaginated(key, payload, page, limit)
+      .then((dbData) => {
+        if (dbData.length > 0) {
+          res.status(200).json({
+            success: true,
+            payload: dbData,
+          });
+        }
+        res.status(401).json({
+          success: false,
+          message: 'Nothing is found! Check your search parameters',
+        });
+      })
+      .catch((err) => {
+        res.status(401).json({
+          success: false,
+          message: err,
+        });
+      });
+  });
 };
 
 module.exports = {attachTo};
