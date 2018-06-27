@@ -9,9 +9,22 @@ class BaseData {
     this.collection = this.db.collection(this.collectionName);
   };
 
-  getAll() {
+  getAll(page, limit) {
+    if (limit === undefined) {
+      limit = 5;
+    }
+    if (page === undefined || page < 1) {
+      page = 1;
+    }
+    const skip = (page - 1) * limit;
     return this.collection.find({})
+      .skip(+skip)
+      .limit(+limit)
       .toArray();
+  }
+
+  countAll() {
+    return this.collection.count();
   }
 
   create(payload) {
@@ -30,8 +43,7 @@ class BaseData {
   }
 
   findById(id) {
-    let idValidation = this.idValidator(id);
-    if (!idValidation) {
+    if (!this.idValidator(id)) {
       return Promise.reject('Please provide a valid id');
     }
     return this.collection.find(ObjectId(id))
@@ -39,8 +51,7 @@ class BaseData {
   }
 
   validateUserId(id) {
-    let idValidation = this.idValidator(id);
-    if (!idValidation) {
+    if (!this.idValidator(id)) {
       return Promise.reject('Please provide a valid id');
     }
     return this.db.collection('users').find(ObjectId(id))
@@ -58,8 +69,7 @@ class BaseData {
   }
 
   updateItem(id, payload) {
-    let idValidation = this.idValidator(id);
-    if (!idValidation) {
+    if (!this.idValidator(id)) {
       return Promise.reject('Please provide a valid id');
     }
     return this.collection.updateOne(
@@ -78,8 +88,7 @@ class BaseData {
   }
 
   pushComment(id, payload) {
-    let idValidation = this.idValidator(id);
-    if (!idValidation) {
+    if (!this.idValidator(id)) {
       return Promise.reject('Please provide a valid id');
     }
     return this.collection.update(
@@ -95,7 +104,9 @@ class BaseData {
   }
 
   idValidator(id) {
-    if (id.length !== 24) {
+    let checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$');
+    let isValid = checkForHexRegExp.test(id);
+    if (!isValid) {
       return false;
     } else {
       return true;

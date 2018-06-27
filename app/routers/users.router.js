@@ -61,19 +61,20 @@ const attachTo = (app, data) => {
 
   app.get('/user/:id/books', auth, (req, res) => {
     const id = req.params.id;
-    return data.users.findBooksByUser(id)
+    const page = req.query.page;
+    const limit = req.query.limit;
+    return data.users.findBooksByUser(id, page, limit)
       .then((dbData) => {
         if (dbData.length === 0) {
           res.status(200).json({
             success: true,
             message: 'No books to show',
           });
-        } else {
-          res.status(200).json({
-            success: true,
-            payload: dbData,
-          });
         }
+        res.status(200).json({
+          success: true,
+          payload: dbData,
+        });
       })
       .catch((err) => {
         res.status(401).json({
@@ -84,9 +85,9 @@ const attachTo = (app, data) => {
   });
 
   app.post('/user/:id/books/owned', auth, (req, res) => {
-    const id = req.params.id;
-    const bookId = req.body;
-    return data.users.userBooksActions(id, bookId, 'ownedBooks')
+    const userId = req.params.id;
+    const bookId = req.body.bookId;
+    return data.users.addOwnedBook(userId, bookId, 'bookOwners')
       .then((dbData) => {
         res.status(201).json({
           success: true,
@@ -97,6 +98,23 @@ const attachTo = (app, data) => {
         res.status(401).json({
           success: false,
           message: err,
+        });
+      });
+  });
+
+  app.get('/user/:id/books/owned', auth, (req, res) => {
+    const id = req.params.id;
+    return data.books.findByKey('bookOwners.bookOwner', id)
+      .then((dbData) => {
+        res.status(200).json({
+          success: true,
+          payload: dbData,
+        });
+      })
+      .catch((err) => {
+        res.status(401).json({
+          success: false,
+          message: 'Please provide a valid user id',
         });
       });
   });

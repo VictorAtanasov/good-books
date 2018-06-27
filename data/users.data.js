@@ -1,3 +1,4 @@
+const {ObjectId} = require('mongodb');
 const BaseData = require('./base/base.data');
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
@@ -85,10 +86,19 @@ class UserData extends BaseData {
       });
   }
 
-  findBooksByUser(id) {
+  findBooksByUser(id, page, limit) {
+    if (limit === undefined) {
+      limit = 5;
+    }
+    if (page === undefined || page < 1) {
+      page = 1;
+    }
+    const skip = (page - 1) * limit;
     return this.db.collection('books').find({
       'userId': id,
     })
+    .skip(+skip)
+    .limit(+limit)
     .toArray();
   }
 
@@ -108,23 +118,28 @@ class UserData extends BaseData {
       });
   }
 
-  userBooksActions(id, payload, key) {
-    if (payload.bookId.length !== 24) {
+  addOwnedBook(userId, bookId, key) {
+    if (!this.idValidator(userId) || !this.idValidator(bookId)) {
       return Promise.reject('Please provide a valid id');
     }
     const data = {
-      bookId: payload.bookId,
+      bookOwner: userId,
     };
-    return this.pushItem(id, data, key)
+    return this.db.collection('books').update(
+      {'_id': ObjectId(bookId)},
+      {$addToSet: {
+        [key]: data,
+      }}
+    )
       .then((dbItem) => {
         if (dbItem.result.nModified === 1) {
           return Promise.resolve('Successfuly added!');
         } else {
-          return Promise.reject('Please provide a valid id');
+          return Promise.reject('The book is already marked as owned by that user');
         }
       })
       .catch((err) => {
-        return Promise.reject('Error');
+        return Promise.reject(err);
       });
   }
 }

@@ -3,13 +3,19 @@ const fileUpload = require('../../middlewares/file');
 
 const attachTo = (app, data) => {
   app.get('/books', (req, res) => {
-    return data.books.getAll()
-      .then((books) => {
-        if (books.length > 0) {
-          return res.status(200).json({
-            success: true,
-            payload: books,
-          });
+    const page = req.query.page;
+    const limit = req.query.limit;
+    return data.books.getAll(page, limit)
+      .then((dbData) => {
+        if (dbData.length > 0) {
+          return data.books.countAll()
+            .then((counter) => {
+              res.status(200).json({
+                success: true,
+                booksCount: counter,
+                payload: dbData,
+              });
+            });
         }
         res.status(401).json({
           success: false,
