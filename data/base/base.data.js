@@ -9,7 +9,7 @@ class BaseData {
     this.collection = this.db.collection(this.collectionName);
   };
 
-  getAll(page, limit) {
+  pagination(page, limit) {
     if (limit === undefined) {
       limit = 5;
     }
@@ -17,9 +17,25 @@ class BaseData {
       page = 1;
     }
     const skip = (page - 1) * limit;
+    return {
+      skip,
+      limit,
+    };
+  }
+
+  getAll(page, limit) {
+    let pageLimits = this.pagination(page, limit);
     return this.collection.find({})
-      .skip(+skip)
-      .limit(+limit)
+      .skip(+pageLimits.skip)
+      .limit(+pageLimits.limit)
+      .toArray();
+  }
+
+  getAllByCollection(page, limit, collection) {
+    let pageLimits = this.pagination(page, limit);
+    return this.db.collection(collection).find({})
+      .skip(+pageLimits.skip)
+      .limit(+pageLimits.limit)
       .toArray();
   }
 
@@ -43,34 +59,22 @@ class BaseData {
   }
 
   findByKeyPaginated(key, payload, page, limit) {
-    if (limit === undefined) {
-      limit = 5;
-    }
-    if (page === undefined || page < 1) {
-      page = 1;
-    }
-    const skip = (page - 1) * limit;
+    let pageLimits = this.pagination(page, limit);
     return this.collection.find({
       [key]: payload,
     })
-    .skip(+skip)
-    .limit(+limit)
+    .skip(+pageLimits.skip)
+    .limit(+pageLimits.limit)
     .toArray();
   }
 
   textQuery(key, payload, page, limit) {
-    if (limit === undefined) {
-      limit = 5;
-    }
-    if (page === undefined || page < 1) {
-      page = 1;
-    }
-    const skip = (page - 1) * limit;
+    let pageLimits = this.pagination(page, limit);
     return this.collection.find({
       [key]: {$regex: new RegExp(payload, 'igm')},
     })
-    .skip(+skip)
-    .limit(+limit)
+    .skip(+pageLimits.skip)
+    .limit(+pageLimits.limit)
     .toArray();
   }
 

@@ -13,7 +13,7 @@ class BooksData extends BaseData {
     }
     return this.addCategory(payload)
       .then((payload) => {
-        this.addAuthor(payload)
+        return this.addAuthor(payload)
         .then((payload) => {
           payload.rating = 0;
           payload.totalRating = 0;

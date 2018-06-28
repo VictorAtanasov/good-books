@@ -19,7 +19,7 @@ const attachTo = (app, data) => {
         }
         res.status(401).json({
           success: false,
-          message: 'No books',
+          message: 'No books found',
         });
       });
   });
@@ -133,6 +133,25 @@ const attachTo = (app, data) => {
         res.status(401).json({
           success: false,
           message: err,
+        });
+      });
+  });
+
+  app.get('/books/search/:collection', (req, res) => {
+    const page = req.query.page;
+    const limit = req.query.limit;
+    const collectionName = req.params.collection;
+    return data.books.getAllByCollection(page, limit, collectionName)
+      .then((dbData) => {
+        if (dbData.length > 0) {
+          return res.status(200).json({
+            success: true,
+            payload: dbData,
+          });
+        }
+        res.status(401).json({
+          success: false,
+          message: 'No data found',
         });
       });
   });
