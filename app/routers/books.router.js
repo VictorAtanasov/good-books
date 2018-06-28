@@ -138,14 +138,14 @@ const attachTo = (app, data) => {
   });
 
   app.get('/books/search/:key/:payload', (req, res) => {
-    const key = req.params.key;
-    const payload = req.params.payload;
+    const key = req.params.key.toLowerCase();
+    const payload = req.params.payload.toLowerCase().split('-').join(' ');
     const page = req.query.page;
     const limit = req.query.limit;
-    return data.books.findByKeyPaginated(key, payload, page, limit)
+    return data.books.textQuery(key, payload, page, limit)
       .then((dbData) => {
         if (dbData.length > 0) {
-          res.status(200).json({
+          return res.status(200).json({
             success: true,
             payload: dbData,
           });

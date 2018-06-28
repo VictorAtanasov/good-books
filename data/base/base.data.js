@@ -58,6 +58,22 @@ class BaseData {
     .toArray();
   }
 
+  textQuery(key, payload, page, limit) {
+    if (limit === undefined) {
+      limit = 5;
+    }
+    if (page === undefined || page < 1) {
+      page = 1;
+    }
+    const skip = (page - 1) * limit;
+    return this.collection.find({
+      [key]: {$regex: new RegExp(payload, 'igm')},
+    })
+    .skip(+skip)
+    .limit(+limit)
+    .toArray();
+  }
+
   findById(id) {
     if (!this.idValidator(id)) {
       return Promise.reject('Please provide a valid id');

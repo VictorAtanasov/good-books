@@ -11,21 +11,55 @@ class BooksData extends BaseData {
     if (!validation.isFormValid) {
       return Promise.reject(validation);
     }
-    return this.validateUserId(payload.userId)
-      .then((res) => {
-        if (res) {
+    return this.addCategory(payload)
+      .then((payload) => {
+        this.addAuthor(payload)
+        .then((payload) => {
           payload.rating = 0;
           payload.totalRating = 0;
           payload.ratingsCount = 0;
           payload.reviewsCount = 0;
           payload.comments = [];
           return this.collection.insert(payload);
+        });
+      });
+  }
+
+  addCategory(payload) {
+    return this.db.collection('categories').find({
+      'name': payload.category.toLowerCase(),
+    })
+      .toArray()
+      .then((dbData) => {
+        if (dbData.length > 0) {
+          payload.category = dbData[0].name;
+          return payload;
         } else {
-          return Promise.reject('Please provide a valid user id');
+          this.db.collection('categories').insert({
+            name: payload.category.toLowerCase(),
+          });
+          payload.category = payload.category.toLowerCase();
+          return payload;
         }
-      })
-      .catch((err) => {
-        return Promise.reject('Please provide a valid user id');
+      });
+  }
+
+  addAuthor(payload) {
+    return this.db.collection('authors').find({
+      'name': payload.author.toLowerCase(),
+    })
+      .toArray()
+      .then((dbData) => {
+        if (dbData.length > 0) {
+          payload.author = dbData[0].name;
+          return payload;
+        } else {
+          this.db.collection('authors').insert({
+            name: payload.author.toLowerCase(),
+          });
+          payload.author = payload.author.toLowerCase();
+          return payload;
+        }
       });
   }
 
