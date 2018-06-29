@@ -91,9 +91,9 @@ class Book {
       errors.message = 'Please provide at least one book field for update';
     }
 
-    if (typeof payload.author !== 'string' || payload.author.length < 3) {
+    if (typeof payload.username !== 'string' || payload.username.length < 3) {
       isFormValid = false;
-      errors.author = 'Author must be more than 2 symbols';
+      errors.username = 'Username must be more than 2 symbols';
     }
 
     if (payload.title.length < 1) {
@@ -101,9 +101,9 @@ class Book {
       errors.title = 'Title must be more than 1 symbols';
     }
 
-    if (typeof payload.body !== 'string' || payload.body.length < 5) {
+    if (typeof payload.comment !== 'string' || payload.comment.length < 5) {
       isFormValid = false;
-      errors.body = 'The comment must be at least 5 symbols';
+      errors.comment = 'The comment must be at least 5 symbols';
     }
 
     if (!isFormValid) {

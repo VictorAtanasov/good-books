@@ -11,23 +11,25 @@ class BooksData extends BaseData {
     if (!validation.isFormValid) {
       return Promise.reject(validation);
     }
-    return this.addCategory(payload)
+    payload = this.removeWhitespace(payload);
+    return this.createAuthorCategory(payload)
       .then((payload) => {
-        return this.addAuthor(payload)
-        .then((payload) => {
-          payload.rating = 0;
-          payload.totalRating = 0;
-          payload.ratingsCount = 0;
-          payload.reviewsCount = 0;
-          payload.comments = [];
-          return this.collection.insert(payload);
-        });
+        return this.checkTitle(payload.title)
+          .then((ifTitle) => {
+              if (ifTitle) {
+                return Promise.reject('This book already exists');
+              }
+              payload.rating = 0;
+              payload.totalRating = 0;
+              payload.ratingsCount = 0;
+              return this.collection.insert(payload);
+          });
       });
   }
 
-  addCategory(payload) {
+  createAuthorCategory(payload) {
     return this.db.collection('categories').find({
-      'name': payload.category.toLowerCase(),
+      'name': {$regex: new RegExp(`^${payload.category}$`, 'i')},
     })
       .toArray()
       .then((dbData) => {
@@ -36,31 +38,41 @@ class BooksData extends BaseData {
           return payload;
         } else {
           this.db.collection('categories').insert({
-            name: payload.category.toLowerCase(),
+            name: payload.category,
           });
-          payload.category = payload.category.toLowerCase();
           return payload;
         }
+      })
+      .then((dbData) => {
+        return this.db.collection('authors').find({
+          'name': {$regex: new RegExp(`^${payload.author}$`, 'i')},
+        })
+          .toArray()
+          .then((dbData) => {
+            if (dbData.length > 0) {
+              payload.author = dbData[0].name;
+              return payload;
+            } else {
+              this.db.collection('authors').insert({
+                name: payload.author,
+              });
+              return payload;
+            }
+          });
       });
   }
 
-  addAuthor(payload) {
-    return this.db.collection('authors').find({
-      'name': payload.author.toLowerCase(),
+  checkTitle(title) {
+    return this.collection.find({
+      'title': {$regex: new RegExp(`^${title}$`, 'i')},
     })
-      .toArray()
-      .then((dbData) => {
-        if (dbData.length > 0) {
-          payload.author = dbData[0].name;
-          return payload;
-        } else {
-          this.db.collection('authors').insert({
-            name: payload.author.toLowerCase(),
-          });
-          payload.author = payload.author.toLowerCase();
-          return payload;
-        }
-      });
+    .toArray()
+    .then((dbData) => {
+      if (dbData.length > 0) {
+        return true;
+      }
+      return false;
+    });
   }
 
   updateBook(id, payload) {
@@ -98,14 +110,31 @@ class BooksData extends BaseData {
     if (!validation.isFormValid) {
       return Promise.reject(validation);
     }
-    return this.pushItem(id, payload, 'comments')
+    let comment = {
+      bookId: id,
+      comment: payload.comment,
+      title: payload.title,
+      commenter: {
+        username: payload.username,
+        userId: payload.userId,
+        avatar: payload.avatar,
+      },
+    };
+    return this.db.collection('comments').insert(comment)
       .then((dbData) => {
-        if (dbData.result.nModified === 1) {
-          return this.findById(id);
+        if (dbData.result.ok === 1) {
+          return dbData.ops[0];
         } else {
           return Promise.reject('Please provide a valid book id');
         }
       });
+  }
+
+  getComments(id) {
+    return this.db.collection('comments').find({
+      'bookId': id,
+    })
+    .toArray();
   }
 }
 

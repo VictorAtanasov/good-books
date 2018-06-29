@@ -142,6 +142,21 @@ class UserData extends BaseData {
         return Promise.reject(err);
       });
   }
+
+  updateUser(userId, payload) {
+    let validation = this.validator.isValidUpdate(payload);
+    if (!validation.isFormValid) {
+      return Promise.reject(validation);
+    }
+    return bcrypt.hash(payload.password, 10, (err, hash) => {
+      if (err) {
+        return Promise.reject(err);
+      } else {
+        payload.password = hash;
+        return this.updateItem(userId, payload);
+      }
+    });
+  }
 }
 
 module.exports = UserData;

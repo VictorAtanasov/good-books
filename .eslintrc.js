@@ -7,5 +7,6 @@ module.exports = {
         "require-jsdoc": "off",
         "max-len": "off",
         "new-cap": "off",
+        "guard-for-in": "off",
     }
 };

@@ -13,7 +13,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });
@@ -35,7 +35,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });
@@ -52,11 +52,20 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });
       });
+  });
+
+  app.put('/user/:id', fileUpload.upload.single('avatar'), auth, (req, res) => {
+    const user = req.body;
+    const id = req.params.id;
+    if (req.file) {
+      user.avatar = req.file.filename;
+    }
+    return data.users.updateUser(id, user);
   });
 
   app.get('/user/:id/books', auth, (req, res) => {
@@ -77,7 +86,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });
@@ -95,7 +104,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });
@@ -114,7 +123,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: 'Please provide a valid user id',
         });

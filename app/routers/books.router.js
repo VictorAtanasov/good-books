@@ -17,7 +17,7 @@ const attachTo = (app, data) => {
               });
             });
         }
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: 'No books found',
         });
@@ -42,7 +42,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });
@@ -54,7 +54,7 @@ const attachTo = (app, data) => {
     return data.books.findById(id)
       .then((dbItem) => {
         if (dbItem.length === 0) {
-          res.status(401).json({
+          res.status(400).json({
             success: false,
             message: 'Nothing is found',
           });
@@ -87,7 +87,7 @@ const attachTo = (app, data) => {
             message: 'The book is successfully updated!',
           });
         } else {
-          res.status(401).json({
+          res.status(400).json({
             success: false,
             message: 'There was nothing to update',
           });
@@ -112,7 +112,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });
@@ -130,9 +130,32 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
+        });
+      });
+  });
+
+  app.get('/books/:id/comments', (req, res) => {
+    const id = req.params.id;
+    return data.books.getComments(id)
+      .then((dbData) => {
+        if (dbData.length > 0) {
+          return res.status(200).json({
+            success: true,
+            payload: dbData,
+          });
+        }
+        res.status(200).json({
+          success: false,
+          message: 'This book don\'t have any comments!',
+        });
+      })
+      .catch((err) => {
+        res.status(400).json({
+          success: false,
+          message: 'Please provide a valid book id',
         });
       });
   });
@@ -149,7 +172,7 @@ const attachTo = (app, data) => {
             payload: dbData,
           });
         }
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: 'No data found',
         });
@@ -175,7 +198,7 @@ const attachTo = (app, data) => {
         });
       })
       .catch((err) => {
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: err,
         });

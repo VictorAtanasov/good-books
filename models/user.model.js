@@ -6,12 +6,12 @@ class User {
     const errors = {};
     let isFormValid = true;
     let message = '';
-    let validEmail = emailReg.test(String(payload.email).toLowerCase());
-    let validPass = passwordReg.test(String(payload.password).toLowerCase());
     if (!payload) {
       isFormValid = false;
       errors.message = 'Check the form for errors';
     }
+    let validEmail = emailReg.test(String(payload.email).toLowerCase());
+    let validPass = passwordReg.test(String(payload.password).toLowerCase());
     if (typeof payload.email !== 'string' || payload.email.length < 4 || !validEmail) {
       isFormValid = false;
       errors.email = 'Please provide a valid email address';
@@ -40,12 +40,12 @@ class User {
     const errors = {};
     let isFormValid = true;
     let message = '';
-    let validEmail = emailReg.test(String(payload.email).toLowerCase());
-    let validPass = passwordReg.test(String(payload.password).toLowerCase());
     if (!payload) {
       isFormValid = false;
       errors.message = 'Check the form for errors';
     }
+    let validEmail = emailReg.test(String(payload.email).toLowerCase());
+    let validPass = passwordReg.test(String(payload.password).toLowerCase());
     if (typeof payload.email !== 'string' || payload.email.length < 4 || !validEmail) {
       isFormValid = false;
       errors.email = 'Please provide a valid email address';
@@ -54,6 +54,41 @@ class User {
       isFormValid = false;
       errors.password = 'Check your password for errors';
     }
+
+    if (!isFormValid) {
+      message = 'Check the form for errors';
+    }
+
+    return {
+      errors,
+      isFormValid,
+      message,
+    };
+  };
+
+  static isValidUpdate(payload) {
+    const errors = {};
+    let isFormValid = true;
+    let message = '';
+    if (!payload) {
+      isFormValid = false;
+      errors.message = 'Check the form for errors';
+    }
+    if (payload.password) {
+      let validPass = passwordReg.test(String(payload.password).toLowerCase());
+      if (!validPass) {
+        isFormValid = false;
+        errors.password = 'Check your password for errors';
+      }
+    }
+
+    if (payload.username) {
+      if (typeof payload.username !== 'string' || payload.username.length < 4) {
+        isFormValid = false;
+        errors.username = 'The username should be at least 4 symbols';
+      }
+    }
+
 
     if (!isFormValid) {
       message = 'Check the form for errors';

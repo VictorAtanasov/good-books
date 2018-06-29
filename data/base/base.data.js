@@ -139,6 +139,14 @@ class BaseData {
       return true;
     }
   }
+
+  removeWhitespace(payload) {
+    let removeSpaces = /^\s+|\s+$|\s+(?=\s)/g;
+    for (let i in payload) {
+      payload[i] = payload[i].replace(removeSpaces, '');
+    };
+    return payload;
+  }
 }
 
 module.exports = BaseData;
