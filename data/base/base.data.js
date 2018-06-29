@@ -51,9 +51,9 @@ class BaseData {
     return this.collection.insert(payload);
   }
 
-  findByKey(key, payload) {
+  findByKeyCaseSensitive(key, payload) {
     return this.collection.find({
-      [key]: payload,
+      [key]: {$regex: new RegExp(`^${payload}$`, 'i')},
     })
     .toArray();
   }

@@ -23,10 +23,6 @@ class Book {
       isFormValid = false;
       errors.category = 'Category must be more than 2 symbols';
     }
-    if (typeof payload.user !== 'string' || payload.user.length < 4) {
-      isFormValid = false;
-      errors.user = 'Plesee provide a valid username';
-    }
 
     if (!isFormValid) {
       message = 'Check the form for errors';

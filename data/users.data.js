@@ -11,21 +11,24 @@ class UserData extends BaseData {
   };
 
   checkEmail(payload) {
-    return this.findByKey('email', payload.email)
+    return this.findByKeyCaseSensitive('email', payload.email)
       .then((result) => {
         return result;
       });
   }
 
   hashPassword(payload) {
-    return bcrypt.hash(payload.password, 10, (err, hash) => {
-      if (err) {
-        return Promise.reject(err);
-      } else {
-        payload.password = hash;
-        return this.collection.insert(payload);
-      }
+    let promise = new Promise((resolve, reject) => {
+      bcrypt.hash(payload.password, 10, (err, hash) => {
+        if (err) {
+          reject(err);
+        } else {
+          payload.password = hash;
+          resolve(payload);
+        }
+      });
     });
+    return promise;
   }
 
   comparePasswords(payload) {
@@ -66,6 +69,7 @@ class UserData extends BaseData {
           payload.dbPassword = data[0].password;
           payload.avatar = data[0].avatar;
           payload.id = data[0]['_id'];
+          payload.email = data[0].email;
           return this.comparePasswords(payload);
         }
       });
@@ -81,7 +85,13 @@ class UserData extends BaseData {
         if (data.length > 0) {
           return Promise.reject('This email is already used');
         } else {
-          return this.hashPassword(payload);
+          return this.hashPassword(payload)
+            .then((payload) => {
+              return this.collection.insert(payload);
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
         }
       });
   }
@@ -147,15 +157,43 @@ class UserData extends BaseData {
     let validation = this.validator.isValidUpdate(payload);
     if (!validation.isFormValid) {
       return Promise.reject(validation);
+    } // check the new email address!!!
+    return this.checkEmail(payload)
+      .then((response) => {
+        if (response.length === 0) {
+          return Promise.reject('Auth failed. Please check your email address!');
+        } else {
+          payload.dbPassword = response[0].password;
+          payload.id = response[0]['_id'];
+          return this.comparePasswords(payload)
+            .then((response) => {
+              return this.updateUserObject(payload)
+                .then((newUserObject) => {
+                  return this.updateItem(response.userId, newUserObject);
+                });
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
+        }
+      });
+  }
+
+  updateUserObject(payload) {
+    if (payload.newPassword) {
+      payload.password = payload.newPassword;
+      delete payload.newPassword;
     }
-    return bcrypt.hash(payload.password, 10, (err, hash) => {
-      if (err) {
-        return Promise.reject(err);
-      } else {
-        payload.password = hash;
-        return this.updateItem(userId, payload);
-      }
-    });
+    if (payload.newEmail) {
+      payload.email = payload.newEmail;
+      delete payload.newEmail;
+    }
+    delete payload.dbPassword;
+    delete payload.id;
+    return this.hashPassword(payload)
+      .then((resp) => {
+        return resp;
+      });
   }
 }
 

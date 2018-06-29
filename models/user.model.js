@@ -70,15 +70,28 @@ class User {
     const errors = {};
     let isFormValid = true;
     let message = '';
+    let validPass = passwordReg.test(String(payload.password).toLowerCase());
+    let validEmail = emailReg.test(String(payload.email).toLowerCase());
     if (!payload) {
       isFormValid = false;
       errors.message = 'Check the form for errors';
     }
-    if (payload.password) {
-      let validPass = passwordReg.test(String(payload.password).toLowerCase());
+
+    if (!validPass) {
+      isFormValid = false;
+      errors.password = 'Check your password for errors';
+    }
+
+    if (typeof payload.email !== 'string' || payload.email.length < 4 || !validEmail) {
+      isFormValid = false;
+      errors.email = 'Please provide a valid email address';
+    }
+
+    if (payload.newPassword) {
+      let validPass = passwordReg.test(String(payload.newPassword).toLowerCase());
       if (!validPass) {
         isFormValid = false;
-        errors.password = 'Check your password for errors';
+        errors.newPassword = 'Check your new password for errors';
       }
     }
 
@@ -89,6 +102,13 @@ class User {
       }
     }
 
+    if (payload.newEmail) {
+      let validEmail = emailReg.test(String(payload.newEmail).toLowerCase());
+      if (typeof payload.newEmail !== 'string' || payload.newEmail.length < 4 || !validEmail) {
+        isFormValid = false;
+        errors.newEmail = 'Please provide a valid email address';
+      }
+    }
 
     if (!isFormValid) {
       message = 'Check the form for errors';

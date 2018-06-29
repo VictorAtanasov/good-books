@@ -6,7 +6,7 @@ const attachTo = (app, data) => {
     const user = req.body;
     return data.users.login(user)
       .then((dbItem) => {
-        res.status(201).json({
+        res.status(200).json({
           success: true,
           message: 'Successful login',
           payload: dbItem,
@@ -65,7 +65,26 @@ const attachTo = (app, data) => {
     if (req.file) {
       user.avatar = req.file.filename;
     }
-    return data.users.updateUser(id, user);
+    return data.users.updateUser(id, user)
+      .then((dbResp) => {
+        if (dbResp.result.nModified > 0) {
+          res.status(201).json({
+            success: true,
+            message: 'User data is updated!',
+          });
+        } else {
+          res.status(400).json({
+            success: false,
+            message: 'There was nothing to update',
+          });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          success: false,
+          message: err,
+        });
+      });
   });
 
   app.get('/user/:id/books', auth, (req, res) => {
