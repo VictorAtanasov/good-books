@@ -157,7 +157,7 @@ class UserData extends BaseData {
     let validation = this.validator.isValidUpdate(payload);
     if (!validation.isFormValid) {
       return Promise.reject(validation);
-    } // check the new email address!!!
+    }
     return this.checkEmail(payload)
       .then((response) => {
         if (response.length === 0) {
@@ -169,6 +169,7 @@ class UserData extends BaseData {
             .then((response) => {
               return this.updateUserObject(payload)
                 .then((newUserObject) => {
+                  console.log(newUserObject);
                   return this.updateItem(response.userId, newUserObject);
                 });
             })
@@ -180,17 +181,20 @@ class UserData extends BaseData {
   }
 
   updateUserObject(payload) {
+    // console.log(payload);
+    let newUserData = { };
+    newUserData.password = payload.password;
     if (payload.newPassword) {
-      payload.password = payload.newPassword;
-      delete payload.newPassword;
+      newUserData.password = payload.newPassword;
     }
-    if (payload.newEmail) {
-      payload.email = payload.newEmail;
-      delete payload.newEmail;
+    if (payload.avatar) {
+      newUserData.avatar = payload.avatar;
     }
-    delete payload.dbPassword;
-    delete payload.id;
-    return this.hashPassword(payload)
+    if (payload.username) {
+      newUserData.username = payload.username;
+    }
+    // console.log(newUserData);
+    return this.hashPassword(newUserData)
       .then((resp) => {
         return resp;
       });

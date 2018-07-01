@@ -102,14 +102,6 @@ class User {
       }
     }
 
-    if (payload.newEmail) {
-      let validEmail = emailReg.test(String(payload.newEmail).toLowerCase());
-      if (typeof payload.newEmail !== 'string' || payload.newEmail.length < 4 || !validEmail) {
-        isFormValid = false;
-        errors.newEmail = 'Please provide a valid email address';
-      }
-    }
-
     if (!isFormValid) {
       message = 'Check the form for errors';
     }
