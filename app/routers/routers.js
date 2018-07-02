@@ -3,9 +3,7 @@ const path = require('path');
 
 const attachTo = (app, data) => {
   app.get('/', (req, res) => {
-    res.status(200).json({
-      message: 'Hello!!!',
-    });
+    res.redirect('/books');
   });
 
   fs.readdirSync(__dirname)

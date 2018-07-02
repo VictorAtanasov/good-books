@@ -1,5 +1,7 @@
 # Good Books
-Node.js RESTful API for books sharing. Still in development.
+* Node.js RESTful API for books sharing.
+* Still in development.
+* URL - https://good-books-rdfwwrecig.now.sh 
 
 ## All endpoints are:
 * /auth/login | POST - Login
