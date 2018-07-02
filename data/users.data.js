@@ -169,7 +169,6 @@ class UserData extends BaseData {
             .then((response) => {
               return this.updateUserObject(payload)
                 .then((newUserObject) => {
-                  console.log(newUserObject);
                   return this.updateItem(response.userId, newUserObject);
                 });
             })
@@ -181,7 +180,6 @@ class UserData extends BaseData {
   }
 
   updateUserObject(payload) {
-    // console.log(payload);
     let newUserData = { };
     newUserData.password = payload.password;
     if (payload.newPassword) {
@@ -193,7 +191,6 @@ class UserData extends BaseData {
     if (payload.username) {
       newUserData.username = payload.username;
     }
-    // console.log(newUserData);
     return this.hashPassword(newUserData)
       .then((resp) => {
         return resp;

@@ -54,7 +54,7 @@ const attachTo = (app, data) => {
     return data.books.findById(id)
       .then((dbItem) => {
         if (dbItem.length === 0) {
-          res.status(400).json({
+          res.status(200).json({
             success: false,
             message: 'Nothing is found',
           });
@@ -192,7 +192,7 @@ const attachTo = (app, data) => {
             payload: dbData,
           });
         }
-        res.status(401).json({
+        res.status(400).json({
           success: false,
           message: 'Nothing is found! Check your search parameters',
         });
